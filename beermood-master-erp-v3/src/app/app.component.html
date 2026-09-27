@@ -1,151 +1,96 @@
-<!-- ЕДИНАЯ ШАПКА СИСТЕМЫ -->
 <header class="top-bar">
-  <div class="top-title">
-    <span>🏭 MOOD GROUP // MASTER ERP &amp; TECHNOLOGIST SUITE v3.1</span>
-    <span class="badge-main">Angular 18 + PS.kz Remote Ready</span>
+  <div style="font-size:15.5px; font-weight:800; display:flex; align-items:center; gap:10px;">
+    <span>🏭 MOOD GROUP // PRO MANUFACTURING ERP v3.2</span>
+    <span style="background:var(--amber); color:#000; padding:2px 8px; border-radius:4px; font-size:11px;">ЖК «Арай» • VS Code + PS.kz PHP/MySQL</span>
   </div>
   <div style="display:flex; align-items:center; gap:12px;">
-    <span style="font-size:12px; color:#7ee787; font-weight:700;">{{ erp.syncStatus() }}</span>
-    <span style="font-size:12px; color:var(--muted);">Курс: <strong>500 ₸ = $1.00</strong></span>
-    <button class="btn btn-outline btn-sm" style="color:#ffa198; border-color:#f85149;" (click)="erp.resetAllData()">
-      ↻ Сбросить все к эталону
-    </button>
+    <span style="font-size:12px; color:#7ee787; font-weight:700;">{{ store.syncBanner() }}</span>
+    <button class="btn btn-outline btn-sm" (click)="openDrawer(store.selectedPlu())">📋 Открыть техкарту ХАССП ({{ store.selectedPlu() }})</button>
+    <button class="btn btn-outline btn-sm" style="color:#ffa198; border-color:#f85149;" (click)="store.resetAll()">↻ Сброс БД</button>
   </div>
 </header>
 
-<!-- НАВИГАЦИЯ ПО 5 МОДУЛЯМ -->
 <nav class="nav-tabs">
-  <button class="nav-tab" [class.active]="erp.activeTab() === 'giant'" (click)="erp.activeTab.set('giant')">
-    1. 📅 30-дневный GIANT-план (24 линии + Поставки + Защита от затоваривания)
+  <button class="nav-tab" [class.active]="store.activeTab() === 'giant'" (click)="store.activeTab.set('giant')">
+    1. 📅 30-дневный GIANT-план (24 линии + Анти-затоваривание)
   </button>
-  <button class="nav-tab" [class.active]="erp.activeTab() === 'koch'" (click)="erp.activeTab.set('koch')">
-    2. 🥩 Технолог мясного цеха Г. Коха (Рассолы °Be + Стандарты R/S + Цены упаковки)
+  <button class="nav-tab" [class.active]="store.activeTab() === 'qc_warehouse'" (click)="store.activeTab.set('qc_warehouse')">
+    2. 🔬 Приемка сырья, Лаборатория (Эксперт Профи) и Перемещения
   </button>
-  <button class="nav-tab" [class.active]="erp.activeTab() === 'dairy-bread'" (click)="erp.activeTab.set('dairy-bread')">
-    3. 🧀🥖 Техкарты Сыроварни (Casaro) и Пекарни на закваске (Unox)
+  <button class="nav-tab" [class.active]="store.activeTab() === 'orders_demand'" (click)="store.activeTab.set('orders_demand')">
+    3. 📦 Прием заказов (Telegram ЖК Арай), Продажи и Потребность
   </button>
-  <button class="nav-tab" [class.active]="erp.activeTab() === 'spicelab'" (click)="erp.activeTab.set('spicelab')">
-    4. 🌶️ SPICE LAB Алекса Крамера и Ферментированные соусы
+  <button class="nav-tab" [class.active]="store.activeTab() === 'koch'" (click)="store.activeTab.set('koch')">
+    4. 🥩 Технолог мясного цеха Г. Коха + Рассолы (°Be)
   </button>
-  <button class="nav-tab" [class.active]="erp.activeTab() === 'tspl'" (click)="erp.activeTab.set('tspl')">
-    5. 🖨️ Центр маркировки TSC TE310 (SVG Вариант №2 + TSPL + Акты молока)
+  <button class="nav-tab" [class.active]="store.activeTab() === 'dairy_bread'" (click)="store.activeTab.set('dairy_bread')">
+    5. 🧀🥖 Техкарты Сыроварни (Casaro) и Пекарни (Unox)
+  </button>
+  <button class="nav-tab" [class.active]="store.activeTab() === 'spicelab'" (click)="store.activeTab.set('spicelab')">
+    6. 🌶️ SPICE LAB Алекса Крамера и Соусы
+  </button>
+  <button class="nav-tab" [class.active]="store.activeTab() === 'tspl'" (click)="store.activeTab.set('tspl')">
+    7. 🖨️ Центр маркировки TSC TE310 (SVG Вариант №2)
   </button>
 </nav>
 
-<!-- =================================================================== -->
-<!-- МОДУЛЬ 1: 30-ДНЕВНЫЙ GIANT-ЧАРТ                                     -->
-<!-- =================================================================== -->
-@if (erp.activeTab() === 'giant') {
-  <main class="workspace">
-    <div class="kpi-strip">
-      <div class="kpi-card">
-        <div class="kpi-title">Месячный выпуск (4 цеха, 24 PLU)</div>
-        <div class="kpi-val">800 кг мяса • 1 900 л молока</div>
-        <div class="kpi-sub">1 600 буханок хлеба • 60 кг соусов • 140 суп-китов</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Оборотный капитал сырья</div>
-        <div class="kpi-val">&#36;1,620 (810 000 ₸)</div>
-        <div class="kpi-sub">Цикл оборота: 4,0 дня (7,5 оборотов в месяц)</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Упаковка и маркировка TSC TE310</div>
-        <div class="kpi-val">6 800 уп. / &#36;780 в мес.</div>
-        <div class="kpi-sub">14 рулонов ТермоТОП 58×60 мм (с запасом)</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Статус затоваривания и списаний</div>
-        <div class="kpi-val" [style.color]="erp.giantPivot() ? '#d2a8ff' : '#7ee787'">
-          {{ erp.giantPivot() ? 'Спасено маневром: 319 кг' : 'Штатный баланс (0% потерь)' }}
-        </div>
-        <div class="kpi-sub">
-          {{ erp.giantPivot() ? 'Перевод на Белпер Кнолле, Пломбир и Билтонг' : 'Синхронизация с предзаказом ЖК «Арай»' }}
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-title">Прогноз чистой прибыли (Net Profit)</div>
-        <div class="kpi-val" style="color:#7ee787;">
-          &#36;{{ (erp.giantPivot() ? 19840 : 20570) | number }} / мес.
-        </div>
-        <div class="kpi-sub">40% дивиденды владельцам / 60% реинвест</div>
-      </div>
-    </div>
+<main class="workspace">
+  <!-- ПЕРЕИСПОЛЬЗУЕМАЯ ПАНЕЛЬ KPI В ВЕРХНЕЙ ЧАСТИ -->
+  <div class="kpi-strip">
+    <app-kpi-badge title="Месячный выпуск (4 цеха)" value="800 кг мяса • 1 900 л молока" subtitle="1 600 буханок • 60 кг соусов • 140 суп-китов"></app-kpi-badge>
+    <app-kpi-badge title="Оборотный капитал сырья" value="&#36;1,620 (810 000 ₸)" subtitle="Цикл оборота: 4,0 дня (7,5 обор./мес)"></app-kpi-badge>
+    <app-kpi-badge title="Заказы в доставке ЖК Арай" [value]="store.orders().length + ' активных заказа'" subtitle="Утро 07:30–09:00 / Вечер 18:30–20:00" valColor="#79c0ff"></app-kpi-badge>
+    <app-kpi-badge title="Защита от затоваривания" [value]="store.giantPivot() ? 'Спасено: 319 кг в буфер' : 'Штатный баланс (0% потерь)'" [valColor]="store.giantPivot() ? '#d2a8ff' : '#7ee787'" subtitle="Перевод в Белпер Кнолле, Пломбир и Билтонг"></app-kpi-badge>
+    <app-kpi-badge title="Чистая прибыль (Net Profit)" [value]="store.giantPivot() ? '&#36;19,840 / мес.' : '&#36;20,570 / мес.'" valColor="#7ee787" subtitle="40% дивиденды / 60% реинвест"></app-kpi-badge>
+  </div>
 
-    <div class="card" style="padding:12px 16px;">
-      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px;">
+  <!-- ==================== ВКЛАДКА 1: 30-ДНЕВНЫЙ GIANT-ЧАРТ ==================== -->
+  @if (store.activeTab() === 'giant') {
+    <div class="card" style="padding:10px 14px;">
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px;">
         <div style="display:flex; flex-wrap:wrap; gap:6px;">
-          @for (dept of giantDepts; track dept.id) {
-            <button class="btn btn-outline" [class.active]="erp.giantDept() === dept.id" (click)="erp.giantDept.set(dept.id)">
-              {{ dept.label }}
-            </button>
+          @for (d of depts; track d.id) {
+            <button class="btn btn-outline btn-sm" [class.active]="store.giantDept() === d.id" (click)="store.giantDept.set(d.id)">{{ d.label }}</button>
           }
         </div>
-
-        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:14px;">
-          <div style="background:var(--panel-alt); padding:5px 12px; border-radius:6px; border:1px solid var(--border);">
-            📅 День месяца: <strong style="color:var(--amber); font-size:15px;">{{ erp.giantDay() }}</strong> / 30 ({{ getDow(erp.giantDay()) }})
-            <input type="range" min="1" max="30" [ngModel]="erp.giantDay()" (ngModelChange)="erp.giantDay.set(+$event)" style="width:140px; vertical-align:middle;">
-          </div>
-          <button class="btn btn-purple" [class.active]="erp.giantPivot()" (click)="erp.giantPivot.set(!erp.giantPivot())">
-            {{ erp.giantPivot() ? '🛡️ АКТИВНА ЗАЩИТА (-25% спрос): 319 кг в буфер' : '⚡ Включить защиту от затоваривания' }}
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span>📅 День месяца: <strong style="color:var(--amber);">{{ store.giantDay() }} / 30</strong> ({{ getDow(store.giantDay()) }})
+            <input type="range" min="1" max="30" [ngModel]="store.giantDay()" (ngModelChange)="store.giantDay.set(+$event)" style="vertical-align:middle; width:130px;">
+          </span>
+          <button class="btn btn-purple btn-sm" [class.active]="store.giantPivot()" (click)="store.giantPivot.set(!store.giantPivot())">
+            {{ store.giantPivot() ? '🛡️ Защита от затоваривания АКТИВНА (-25% спрос)' : '⚡ Включить защиту от затоваривания' }}
           </button>
         </div>
       </div>
-    </div>
-
-    <div class="legend-bar">
-      <span><i class="dot" style="background:#388bfd;"></i><strong>S</strong> — Поставка</span>
-      <span><i class="dot" style="background:#f0883e;"></i><strong>P</strong> — Выработка</span>
-      <span><i class="dot" style="background:rgba(46,160,67,0.65);"></i><strong>L</strong> — Свежесть</span>
-      <span><i class="dot" style="background:rgba(210,153,34,0.75);"></i><strong>W</strong> — Промо -10%</span>
-      <span><i class="dot" style="background:rgba(248,81,73,0.85);"></i><strong>!</strong> — Риск (&le; 2 сут.)</span>
-      <span><i class="dot" style="background:rgba(163,113,247,0.8);"></i><strong>⇄</strong> — Маневр сырья</span>
     </div>
 
     <div class="giant-wrap">
       <table class="giant-table">
         <thead>
           <tr>
-            <th class="col-prod">Код PLU и Продуктовая линия</th>
-            <th class="col-meta">План / мес</th>
+            <th class="col-prod">PLU и Продукт (Клик — Техкарта ХАССП)</th>
+            <th class="col-meta">План/мес</th>
             <th class="col-meta">Срок годн.</th>
-            <th class="col-stat">Статус на День {{ erp.giantDay() }}</th>
+            <th class="col-stat">День {{ store.giantDay() }}</th>
             @for (d of days30; track d) {
-              <th class="d-cell" [class.d-head-cur]="d === erp.giantDay()" (click)="erp.giantDay.set(d)">
-                <div>{{ d }}</div>
-                <div style="font-size:8.5px; font-weight:400;">{{ getDow(d) }}</div>
+              <th class="d-cell" [class.d-head-cur]="d === store.giantDay()" (click)="store.giantDay.set(d)">
+                <div>{{ d }}</div><div style="font-size:8.5px; font-weight:400;">{{ getDow(d) }}</div>
               </th>
             }
           </tr>
         </thead>
         <tbody>
-          @for (p of filteredGiantLines(); track p.plu) {
+          @for (p of filteredLines(); track p.plu) {
             <tr>
-              <td class="col-prod"
-                  [style.borderLeft]="p.plu === erp.selectedPlu() ? '4px solid var(--amber)' : ''"
-                  [style.background]="p.plu === erp.selectedPlu() ? '#1d2836' : ''"
-                  (click)="selectGiantPlu(p.plu)">
+              <td class="col-prod" [style.borderLeft]="p.plu === store.selectedPlu() ? '4px solid var(--amber)' : ''" (click)="openDrawer(p.plu)">
                 <span class="plu-tag">{{ p.plu }}</span> <strong>{{ p.name }}</strong>
               </td>
-              <td class="col-meta">
-                <strong>{{ getAdjustedMonthlyKg(p) }} кг</strong>
-                <div style="font-size:9.5px; color:var(--muted);">{{ p.monthlyUnits }} уп.</div>
-              </td>
-              <td class="col-meta">
-                <strong>{{ p.shelfDays }} сут.</strong>
-                <div style="font-size:9.5px; color:var(--muted);">{{ p.temp }}</div>
-              </td>
-              <td class="col-stat">
-                <span class="pill" [ngClass]="getGiantCellState(p, erp.giantDay()).pill">
-                  {{ getGiantCellState(p, erp.giantDay()).txt.split(':')[0] }}
-                </span>
-              </td>
+              <td class="col-meta"><strong>{{ getAdjustedKg(p) }} кг</strong><div style="font-size:9.5px; color:var(--muted);">{{ p.monthlyUnits }} уп.</div></td>
+              <td class="col-meta"><strong>{{ p.shelfDays }} сут.</strong><div style="font-size:9.5px; color:var(--muted);">{{ p.temp }}</div></td>
+              <td class="col-stat"><span class="pill" [ngClass]="getCell(p, store.giantDay()).pill">{{ getCell(p, store.giantDay()).label }}</span></td>
               @for (d of days30; track d) {
-                <td class="d-cell"
-                    [ngClass]="getGiantCellState(p, d).cls"
-                    [class.d-col-cur]="d === erp.giantDay()"
-                    (click)="selectGiantPlu(p.plu, d)">
-                  {{ getGiantCellState(p, d).sym }}
+                <td class="d-cell" [ngClass]="getCell(p, d).cls" [class.d-col-cur]="d === store.giantDay()" (click)="selectPluAndDay(p.plu, d)">
+                  {{ getCell(p, d).sym }}
                 </td>
               }
             </tr>
@@ -153,213 +98,202 @@
         </tbody>
       </table>
     </div>
+  }
 
-    <!-- НИЖНИЕ ИНСПЕКТОРЫ -->
-    <div class="grid-3">
+  <!-- ==================== ВКЛАДКА 2: ПРИЕМКА, ЛАБОРАТОРИЯ И СКЛАД ==================== -->
+  @if (store.activeTab() === 'qc_warehouse') {
+    <div class="grid-2">
       <div class="card">
         <h3>
-          <span>📦 Поставки на День {{ erp.giantDay() }} ({{ getDow(erp.giantDay()) }})</span>
-          <span class="pill pill-ok">{{ getActiveLinesForDay(erp.giantDay()).length }} линий</span>
+          <span>🔬 Приемка сырья и Лаборатория качества («Эксперт Профи» + Hanna pH)</span>
+          <button class="btn btn-green btn-sm" (click)="acceptNewMilkBatch()">+ Принять партию молока (210 л)</button>
         </h3>
-        <ul style="padding-left:16px; margin:0 0 10px 0; color:#79c0ff; font-size:11.5px;">
-          @for (s of getSupplyEventsForDay(erp.giantDay()); track s) {
-            <li style="margin-bottom:4px;">{{ s }}</li>
-          }
-        </ul>
-        <div style="display:flex; flex-wrap:wrap; gap:5px;">
-          @for (p of getActiveLinesForDay(erp.giantDay()); track p.plu) {
-            <span class="plu-tag" style="cursor:pointer;" (click)="selectGiantPlu(p.plu)">
-              {{ p.plu }}: {{ p.name.split(' ')[0] }}
-            </span>
-          }
-        </div>
+        <table class="mini-table">
+          <thead><tr><th>Партия</th><th>Поставщик</th><th>Объем</th><th>Жир/Белок</th><th>pH</th><th>Вода</th><th>Вердикт</th></tr></thead>
+          <tbody>
+            @for (b of store.rawBatches(); track b.batchId) {
+              <tr>
+                <td><strong>{{ b.batchId }}</strong></td>
+                <td>{{ b.supplier }}</td>
+                <td>{{ b.qty }} {{ b.unit }}</td>
+                <td>{{ b.fatPct }}% / {{ b.protPct }}%</td>
+                <td>{{ b.phVal }}</td>
+                <td [style.color]="b.waterAddedPct > 0 ? '#f85149' : '#7ee787'">{{ b.waterAddedPct }}%</td>
+                <td>
+                  <span class="pill" [ngClass]="b.verdict === 'PASSED' ? 'pill-ok' : 'pill-crit'">
+                    {{ b.verdict === 'PASSED' ? 'ГОДНО 1 СОРТ' : 'БРАК (ВОДА)' }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
 
       <div class="card">
         <h3>
-          <span>🔄 Матрица перестройки линий (Anti-Overstock)</span>
-          <span class="pill" [ngClass]="erp.giantPivot() ? 'pill-pivot' : 'pill-ok'">
-            {{ erp.giantPivot() ? 'Активна' : 'Мониторинг' }}
-          </span>
+          <span>🚚 Журнал перемещения товара (Цех -7.800 ⇄ Паб / Витрина / Вендинг)</span>
+          <button class="btn btn-outline btn-sm" (click)="recordQuickMovement()">+ Переместить партию на витрину</button>
         </h3>
-        <div style="max-height:215px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
-          @for (p of shortRiskLines(); track p.plu) {
-            <div style="background:var(--panel-alt); padding:7px 9px; border-radius:6px; border-left:3px solid var(--purple); font-size:11.5px; cursor:pointer;"
-                 (click)="selectGiantPlu(p.plu)">
-              <strong>{{ p.plu }} {{ p.name }}</strong>: {{ p.pivotAction }}
-            </div>
-          }
-        </div>
+        <table class="mini-table">
+          <thead><tr><th>Время</th><th>Партия</th><th>Продукт</th><th>Откуда -> Куда</th><th>Кол-во</th></tr></thead>
+          <tbody>
+            @for (m of store.movements(); track m.id) {
+              <tr>
+                <td>{{ m.movedAt }}</td>
+                <td><span class="plu-tag">{{ m.batchCode }}</span></td>
+                <td><strong>{{ m.productName }}</strong></td>
+                <td>{{ m.fromLoc }} → {{ m.toLoc }}</td>
+                <td>{{ m.qtyUnits }} уп.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
-
-      @if (currentSelectedLine(); as sel) {
-        <div class="card">
-          <h3>
-            <span>🏷️ Паспорт линии: {{ sel.plu }}</span>
-            <span class="plu-tag">{{ sel.brand }}</span>
-          </h3>
-          <div style="font-size:14px; font-weight:800; margin-bottom:5px;">{{ sel.name }}</div>
-          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">
-            Упаковка: <strong style="color:#fff;">{{ sel.packG }} г</strong> |
-            Цена: <strong style="color:var(--amber);">{{ sel.priceKg | number }} ₸/кг</strong> |
-            Срок: <strong style="color:#7ee787;">{{ sel.shelfDays }} сут.</strong>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:6px;">
-            <!-- КНОПКА ОТКРЫТИЯ ВЫЕЗЖАЮЩЕЙ ПАНЕЛИ -->
-            <button class="btn" style="background:#f0883e;" (click)="erp.openTechCardDrawer(sel.plu)">
-              📋 Открыть пошаговую техкарту и треккинг →
-            </button>
-            <button class="btn btn-green" (click)="openPluInTspl(sel.plu)">
-              🖨️ Открыть этикетку Вариант №2 в TSC TE310 →
-            </button>
-          </div>
-        </div>
-      }
     </div>
-  </main>
-}
+  }
 
-<!-- =================================================================== -->
-<!-- МОДУЛЬ 2: ТЕХНОЛОГ МЯСНОГО ЦЕХА Г. КОХА                             -->
-<!-- =================================================================== -->
-@if (erp.activeTab() === 'koch') {
-  <main class="workspace">
+  <!-- ==================== ВКЛАДКА 3: ЗАКАЗЫ, ПРОДАЖИ И ПОТРЕБНОСТЬ ==================== -->
+  @if (store.activeTab() === 'orders_demand') {
+    <app-order-intake
+      [orders]="store.orders()"
+      [lines]="store.lines()"
+      (createOrder)="addCustomerOrder($event)"
+      (packOrder)="packCustomerOrder($event)"
+      (printOrderLabel)="printCustomerOrder($event)">
+    </app-order-intake>
+  }
+
+  <!-- ==================== ВКЛАДКА 4: МЯСНОЙ ЦЕХ Г. КОХА + РАССОЛЫ ==================== -->
+  @if (store.activeTab() === 'koch') {
     <div class="card">
-      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
         <div>
-          <h2 style="margin:0; font-size:17px; color:var(--amber);">🥩 Технолог мясного цеха Г. Коха (21-е издание)</h2>
-          <div style="color:var(--muted); font-size:12px;">Рассолы °Be, маринады, стандарты R/S и расчет доходности упаковки</div>
+          <strong>🥩 Загрузка мясного сырья на партию (кг): </strong>
+          <input type="number" [ngModel]="store.kochBatchKg()" (ngModelChange)="store.kochBatchKg.set(+$event)" style="width:75px;">
+          <button class="btn btn-outline btn-sm" style="margin-left:6px;" (click)="store.kochBatchKg.set(20)">20 кг (Varmen Mini)</button>
+          <button class="btn btn-outline btn-sm" style="margin-left:4px;" (click)="store.kochBatchKg.set(100)">100 кг (Эталон Коха)</button>
         </div>
-        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
-          <label style="font-weight:700;">Партия мяса (кг):
-            <input type="number" [ngModel]="erp.kochBatchKg()" (ngModelChange)="erp.kochBatchKg.set(+$event)" min="1" max="500" style="width:75px; font-weight:800; color:var(--amber);">
-          </label>
-          <button class="btn btn-outline" (click)="erp.kochBatchKg.set(20)">20 кг (Varmen Mini)</button>
-          <button class="btn btn-outline" (click)="erp.kochBatchKg.set(100)">100 кг (Кох)</button>
+        <div>
+          <strong>🧪 Конвертер рассолов Боме (°Be): </strong>
+          <select [ngModel]="store.brineBe()" (ngModelChange)="store.brineBe.set(+$event)">
+            <option [ngValue]="10">10°Be (10,8% соли — грудинка и ребра)</option>
+            <option [ngValue]="12">12°Be (13,0% соли — английский бекон и окорока)</option>
+            <option [ngValue]="14">14°Be (15,2% соли — ускоренный посол)</option>
+          </select>
+          <span style="margin-left:8px; color:#79c0ff;">
+            Шприцевание 20%: <strong>{{ (store.kochBatchKg() * 0.2) | number:'1.1-1' }} л льда/воды + {{ getBrineSaltGrams() }} г нитритной соли</strong>
+          </span>
         </div>
       </div>
     </div>
 
     <div class="cards-grid">
-      @for (c of filteredKochCards(); track c.plu) {
+      @for (line of getLinesByDept('Мясной цех MEAT&BREAD'); track line.plu) {
         <div class="tech-card">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span class="plu-tag">{{ c.plu }} • {{ c.code }}</span>
-              <span class="pill pill-ok">
-                Выход {{ c.yieldPct }}%: {{ (erp.kochBatchKg() * c.yieldPct / 100) | number:'1.1-1' }} кг
-              </span>
+            <div style="display:flex; justify-content:space-between;">
+              <span class="plu-tag">{{ line.plu }}</span>
+              <span class="pill pill-ok">Выход {{ line.yieldPct }}% • На полке: {{ line.shelfStockUnits }} уп.</span>
             </div>
-            <div style="font-size:15px; font-weight:800; margin-bottom:8px;">{{ c.title }}</div>
-
+            <h3 style="margin:6px 0;">{{ line.name }}</h3>
+            <div style="font-size:11.5px; color:#79c0ff;">{{ line.equipment }}</div>
             <table class="mini-table">
-              @for (m of c.meats; track m.name) {
-                <tr><td>{{ m.name }}</td><td>{{ ((m.pct / 100) * erp.kochBatchKg()) | number:'1.2-2' }} кг</td></tr>
+              @for (r of line.rawNorms; track r.name) {
+                <tr><td>{{ r.name }}</td><td>{{ r.qty }}</td></tr>
               }
             </table>
           </div>
-
-          <div class="econ-subbox">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <strong style="color:#7ee787;">💰 Фасовка: {{ c.packGrams }} г ({{ getKochPacksCount(c) }} уп.)</strong>
-              <!-- ВЫЗОВ ВЫЕЗЖАЮЩЕЙ ПАНЕЛИ ИЗ МЯСНОЙ КАРТОЧКИ -->
-              <button class="btn btn-sm btn-outline" (click)="erp.openTechCardDrawer(c.plu)">
-                📋 Шаги ХАССП
-              </button>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:11.5px;">
-              <div>Цена уп.: <strong>{{ getKochPackPrice(c) }} ₸</strong></div>
-              <div>Прибыль: <strong style="color:#7ee787;">+{{ getKochBatchProfit(c) | number }} ₸</strong></div>
-            </div>
-            <button class="btn btn-outline btn-sm" style="width:100%; margin-top:8px;" (click)="openPluInTspl(c.plu)">
-              🖨️ Печать этикетки на TSC TE310 →
-            </button>
-          </div>
+          <app-pack-econ
+            [line]="line"
+            [batchInputKg]="store.kochBatchKg()"
+            (changed)="store.syncWithServer()"
+            (openSteps)="openDrawer($event)"
+            (openTspl)="openInTspl($event)">
+          </app-pack-econ>
         </div>
       }
     </div>
-  </main>
-}
+  }
 
-<!-- =================================================================== -->
-<!-- МОДУЛЬ 3: СЫРОВАРНЯ (CASARO) И ПЕКАРНЯ (UNOX)                       -->
-<!-- =================================================================== -->
-@if (erp.activeTab() === 'dairy-bread') {
-  <main class="workspace">
-    <h3 style="color:var(--cheese);">🧀 Техкарты сыроварни CHEESY MOOD (Casaro 100 л)</h3>
+  <!-- ==================== ВКЛАДКА 5: СЫРОВАРНЯ CASARO И ПЕКАРНЯ UNOX ==================== -->
+  @if (store.activeTab() === 'dairy_bread') {
+    <h3 style="color:var(--cheese); margin:4px 0 10px 0;">🧀 Технологические карты сыроварни CHEESY MOOD (2× Casaro 100 л)</h3>
     <div class="cards-grid">
-      @for (d of erp.dairyCards(); track d.plu) {
+      @for (line of getLinesByDept('CHEESY MOOD'); track line.plu) {
         <div class="tech-card">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="plu-tag" style="color:var(--cheese);">{{ d.plu }}</span>
-              <span class="pill pill-ok">{{ getDairyPacksCount(d) }} уп. по {{ d.packGrams }} г</span>
+            <div style="display:flex; justify-content:space-between;">
+              <span class="plu-tag" style="color:var(--cheese);">{{ line.plu }}</span>
+              <span class="pill pill-ok">Срок: {{ line.shelfDays }} сут. ({{ line.temp }})</span>
             </div>
-            <div style="font-size:15px; font-weight:800; margin:6px 0;">{{ d.title }}</div>
-            <div style="font-size:11.5px; color:#79c0ff;">{{ d.equip }}</div>
+            <h3 style="margin:6px 0;">{{ line.name }}</h3>
+            <table class="mini-table">
+              @for (r of line.rawNorms; track r.name) {
+                <tr><td>{{ r.name }}</td><td>{{ r.qty }}</td></tr>
+              }
+            </table>
           </div>
-          <div class="econ-subbox">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-              <span>Цена: <strong>{{ getDairyPackPrice(d) }} ₸</strong></span>
-              <!-- ВЫЗОВ ВЫЕЗЖАЮЩЕЙ ПАНЕЛИ ИЗ СЫРНОЙ КАРТОЧКИ -->
-              <button class="btn btn-sm btn-outline" (click)="erp.openTechCardDrawer(d.plu)">
-                📋 Регламент варки
-              </button>
-            </div>
-            <button class="btn btn-outline btn-sm" style="width:100%;" (click)="openPluInTspl(d.plu)">
-              🖨️ Печать этикетки Вариант №2 →
-            </button>
-          </div>
+          <app-pack-econ
+            [line]="line"
+            [batchInputKg]="store.dairyBatchLiters()"
+            (changed)="store.syncWithServer()"
+            (openSteps)="openDrawer($event)"
+            (openTspl)="openInTspl($event)">
+          </app-pack-econ>
         </div>
       }
     </div>
 
-    <h3 style="color:var(--amber); margin-top:24px;">🥖 Техкарты пекарни MEAT &amp; BREAD MOOD (Unox)</h3>
+    <h3 style="color:var(--amber); margin:22px 0 10px 0;">🥖 Технологические карты ремесленной пекарни MEAT&amp;BREAD (Пароконвектомат Unox)</h3>
     <div class="cards-grid">
-      @for (b of erp.breadCards(); track b.plu) {
+      @for (line of getLinesByDept('Пекарня MEAT&BREAD'); track line.plu) {
         <div class="tech-card">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="plu-tag">{{ b.plu }}</span>
-              <span class="pill pill-warn">{{ erp.breadBatchLoaves() }} буханок по {{ b.bakedLoafWeightG }} г</span>
+            <div style="display:flex; justify-content:space-between;">
+              <span class="plu-tag">{{ line.plu }}</span>
+              <span class="pill pill-warn">Zero-Waste синергия сыворотки</span>
             </div>
-            <div style="font-size:15px; font-weight:800; margin:6px 0;">{{ b.title }}</div>
-            <div style="font-size:11.5px; color:#79c0ff;">{{ b.equip }}</div>
+            <h3 style="margin:6px 0;">{{ line.name }}</h3>
+            <table class="mini-table">
+              @for (r of line.rawNorms; track r.name) {
+                <tr><td>{{ r.name }}</td><td>{{ r.qty }}</td></tr>
+              }
+            </table>
           </div>
-          <div class="econ-subbox">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-              <span>Цена: <strong>{{ getBreadLoafPrice(b) }} ₸</strong></span>
-              <!-- ВЫЗОВ ВЫЕЗЖАЮЩЕЙ ПАНЕЛИ ИЗ ХЛЕБНОЙ КАРТОЧКИ -->
-              <button class="btn btn-sm btn-outline" (click)="erp.openTechCardDrawer(b.plu)">
-                📋 Шаги ферментации
-              </button>
-            </div>
-            <button class="btn btn-outline btn-sm" style="width:100%;" (click)="openPluInTspl(b.plu)">
-              🖨️ Печать этикетки Вариант №2 →
-            </button>
-          </div>
+          <app-pack-econ
+            [line]="line"
+            [batchInputKg]="22"
+            (changed)="store.syncWithServer()"
+            (openSteps)="openDrawer($event)"
+            (openTspl)="openInTspl($event)">
+          </app-pack-econ>
         </div>
       }
     </div>
-  </main>
-}
+  }
 
-<!-- =================================================================== -->
-<!-- МОДУЛЬ 4: SPICE LAB АЛЕКСА КРАМЕРА                                  -->
-<!-- =================================================================== -->
-@if (erp.activeTab() === 'spicelab') {
-  <main class="workspace">
+  <!-- ==================== ВКЛАДКА 6: SPICE LAB КРАМЕРА И ЛИСТ ЗАКАЗА СЫРЬЯ ==================== -->
+  @if (store.activeTab() === 'spicelab') {
     <div class="grid-2">
       <div class="card">
-        <h3>📦 Склад пряностей цеха (48,3 кг)</h3>
+        <h3><span>🌶️ Склад специй Алекса Крамера и Авто-формирование листа заказа поставщикам</span></h3>
         <table class="mini-table">
-          <thead><tr><th>Пряность</th><th>Помол</th><th>Остаток</th></tr></thead>
+          <thead><tr><th>Пряность</th><th>Помол</th><th>Мин. норма</th><th>Остаток (г)</th><th>К заказу</th></tr></thead>
           <tbody>
-            @for (s of erp.spiceStock(); track s.code) {
+            @for (sp of store.spices(); track sp.code) {
               <tr>
-                <td><strong>{{ s.name }}</strong></td>
-                <td>{{ s.grind }}</td>
-                <td style="color:var(--amber); font-weight:700;">{{ s.stock | number }} г</td>
+                <td><strong>{{ sp.name }}</strong></td>
+                <td>{{ sp.grind }} {{ sp.roast ? '🔥' : '' }}</td>
+                <td>{{ sp.min }} г</td>
+                <td><input type="number" [(ngModel)]="sp.stock" step="50" style="width:85px;"></td>
+                <td>
+                  @if (sp.stock < sp.min) {
+                    <span class="pill pill-crit">ЗАКАЗАТЬ {{ sp.min - sp.stock + 500 }} г</span>
+                  } @else {
+                    <span class="pill pill-ok">В НОРМЕ</span>
+                  }
+                </td>
               </tr>
             }
           </tbody>
@@ -367,175 +301,99 @@
       </div>
 
       <div class="card">
-        <h3>📖 Купажи Алекса Крамера и соусы (PLU-32)</h3>
-        <div style="margin-bottom:10px;">
-          <select [ngModel]="erp.selectedKramerId()" (ngModelChange)="erp.selectedKramerId.set(+$event)" style="width:100%;">
-            @for (r of erp.kramerRecipes(); track r.id) {
-              <option [ngValue]="r.id">[{{ r.plu }}] {{ r.title }}</option>
-            }
-          </select>
-        </div>
-        <button class="btn btn-green" style="width:100%;" (click)="erp.openTechCardDrawer('PLU-32')">
-          📋 Открыть регламент варки соусов и треккинг →
-        </button>
+        <h3><span>🥫 Ферментированные соусы, Суп-киты и Zero-Waste позиции</span></h3>
+        @for (line of getLinesByDept('BEERMOOD & SPICE LAB'); track line.plu) {
+          <div style="background:var(--panel-alt); padding:9px 12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span class="plu-tag">{{ line.plu }}</span> <strong> {{ line.name }}</strong>
+              <div style="font-size:11px; color:var(--muted);">{{ line.pivotAction }}</div>
+            </div>
+            <button class="btn btn-sm" (click)="openDrawer(line.plu)">📋 Техкарта</button>
+          </div>
+        }
       </div>
     </div>
-  </main>
-}
+  }
 
-<!-- =================================================================== -->
-<!-- МОДУЛЬ 5: ЦЕНТР МАРКИРОВКИ TSC TE310 (SVG ВАРИАНТ №2)               -->
-<!-- =================================================================== -->
-@if (erp.activeTab() === 'tspl') {
-  <main class="workspace">
+  <!-- ==================== ВКЛАДКА 7: ЦЕНТР МАРКИРОВКИ TSC TE310 ==================== -->
+  @if (store.activeTab() === 'tspl') {
     <div class="grid-2">
       <div class="card">
-        <h3>🏷️ Живой SVG-макет этикетки 58×60 мм (Вариант №2)</h3>
-        @if (currentSelectedLine(); as p) {
-          <div style="max-width:410px; margin:0 auto;">
-            <!-- Векторный SVG Варианта №2 -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 715" width="100%" height="100%" style="background:#fff; border-radius:8px; font-family:'Helvetica Neue', Arial, sans-serif;">
+        <h3>
+          <span>🏷️ Живой SVG-макет этикетки ТермоТОП 58×60 мм (Вариант №2, 300 dpi)</span>
+          <span class="pill pill-ok">IP: {{ store.printerIp() }}:9100</span>
+        </h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+          <label>Продукт (24 PLU):
+            <select [ngModel]="store.selectedPlu()" (ngModelChange)="store.selectedPlu.set($event)" style="width:100%; margin-top:3px;">
+              @for (p of store.lines(); track p.plu) {
+                <option [ngValue]="p.plu">{{ p.plu }} — {{ p.name }}</option>
+              }
+            </select>
+          </label>
+          <label>Код сквозной партии сырья:
+            <input type="text" [ngModel]="store.tsplBatch()" (ngModelChange)="store.tsplBatch.set($event)" style="width:100%; margin-top:3px; font-family:monospace;">
+          </label>
+        </div>
+
+        @if (currentLine(); as p) {
+          <div style="max-width:390px; margin:0 auto;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 715" width="100%" style="background:#fff; border-radius:8px; font-family:Arial,sans-serif;">
               <rect x="10" y="10" width="670" height="695" rx="4" fill="none" stroke="#111827" stroke-width="3.5"/>
-              <g fill="#111827">
-                <text x="38" y="36" font-size="18" font-weight="900">{{ p.brand }}</text>
-                <text x="245" y="36" font-size="13" font-weight="700" fill="#4B5563">by MOOD GROUP</text>
-                <text x="535" y="35" font-size="13" font-weight="800">СТ РК / ГОСТ</text>
-              </g>
+              <text x="30" y="36" font-size="18" font-weight="900" fill="#111827">{{ p.brand }} * MOOD GROUP</text>
+              <text x="535" y="35" font-size="13" font-weight="800" fill="#111827">СТ РК / ГОСТ</text>
               <line x1="10" y1="50" x2="680" y2="50" stroke="#111827" stroke-width="3"/>
-              <g fill="#111827" text-anchor="middle">
-                <text x="345" y="78" font-size="20" font-weight="900">{{ p.kzTitle }}</text>
-                <rect x="195" y="88" width="300" height="21" rx="3" fill="#111827"/>
-                <text x="345" y="103" font-size="11.5" font-weight="800" fill="#FFFFFF">{{ p.subTitle }}</text>
-              </g>
+              <text x="345" y="78" font-size="20" font-weight="900" text-anchor="middle" fill="#111827">{{ p.kzTitle }}</text>
+              <rect x="185" y="88" width="320" height="21" rx="3" fill="#111827"/>
+              <text x="345" y="103" font-size="11.5" font-weight="800" text-anchor="middle" fill="#FFFFFF">{{ p.subTitle }}</text>
               <line x1="10" y1="117" x2="680" y2="117" stroke="#111827" stroke-width="3"/>
-              <g fill="#1F2937" font-size="11" font-weight="600">
-                <text x="22" y="133"><tspan font-weight="800">Құрамы / Состав:</tspan> {{ p.comp }}</text>
-                <text x="22" y="150"><tspan font-weight="800">100 г:</tspan> Б-{{ erp.tsplProtVal() }} г, Ж-{{ erp.tsplFatVal() }} г. {{ getTsplKcal(p) }} ккал.</text>
-                <rect x="20" y="158" width="650" height="32" fill="#FEF3C7" rx="3" stroke="#FDE68A" stroke-width="1"/>
-                <text x="26" y="172" font-size="10" font-weight="800" fill="#92400E">{{ p.kzPair }}</text>
-                <text x="26" y="185" font-size="10" font-weight="700" fill="#78350F">{{ p.ruPair }}</text>
-              </g>
+              <text x="22" y="134" font-size="11" font-weight="700" fill="#111827">Құрамы / Состав: {{ p.comp }}</text>
+              <text x="22" y="151" font-size="11" font-weight="700" fill="#111827">100 г: Б — {{ p.prot }} г, Ж — {{ p.fat }} г, У — {{ p.carb }} г. {{ getKcal(p) }} ккал.</text>
+              <rect x="20" y="158" width="650" height="32" fill="#FEF3C7" rx="3"/>
+              <text x="26" y="172" font-size="10" font-weight="800" fill="#92400E">{{ p.kzPair }}</text>
+              <text x="26" y="185" font-size="10" font-weight="700" fill="#78350F">{{ p.ruPair }}</text>
               <line x1="10" y1="198" x2="680" y2="198" stroke="#111827" stroke-width="1.5"/>
-              <g fill="#111827" font-size="12">
-                <text x="22" y="217">Дайындалған: 27.09.2026</text>
-                <text x="415" y="217">Партия: <strong>{{ erp.tsplBatchInput() }}</strong></text>
-                <text x="22" y="240" font-size="14" font-weight="900" fill="#991B1B">ЖАРАМДЫ: {{ p.shelfDays }} тәул./суток</text>
-              </g>
+              <text x="22" y="217" font-size="12" font-weight="800" fill="#111827">Дайындалған: 27.09.2026 | Партия: {{ store.tsplBatch() }}</text>
+              <text x="22" y="241" font-size="14" font-weight="900" fill="#991B1B">ЖАРАМДЫ / ГОДЕН: {{ p.shelfDays }} тәул./суток ({{ p.temp }})</text>
               <line x1="10" y1="254" x2="680" y2="254" stroke="#111827" stroke-width="3"/>
-              <text x="114" y="457" font-size="14" font-weight="900" text-anchor="middle">{{ getTsplEan12(p) }}</text>
+              <rect x="35" y="272" width="155" height="155" fill="none" stroke="#111827" stroke-width="3"/>
+              <text x="112" y="355" font-size="12" font-weight="900" text-anchor="middle" fill="#111827">[QR EAN+BATCH]</text>
+              <text x="112" y="452" font-size="14" font-weight="900" text-anchor="middle" fill="#111827">{{ getEan12(p) }}</text>
               <line x1="228" y1="254" x2="228" y2="475" stroke="#111827" stroke-width="2.5"/>
-              <g fill="#111827">
-                <text x="246" y="278">Бағасы: <strong>{{ erp.tsplPriceKg() | number }} ₸</strong></text>
-                <text x="246" y="309">САЛМАҒЫ: <strong>{{ erp.tsplMassKg() | number:'1.3-3' }} кг</strong></text>
-                <text x="254" y="342" fill="#991B1B" font-weight="800">Клуб / MOOD Club: -10%</text>
-                <text x="655" y="392" font-size="27" font-weight="900" text-anchor="end">{{ getTsplTotalClubKzt() | number }} ₸</text>
-                <text x="246" y="445">Шебер / Мастер: ____________</text>
-              </g>
+              <text x="246" y="280" font-size="13" font-weight="800" fill="#111827">Бағасы / Цена кг: {{ p.priceKg | number }} ₸</text>
+              <text x="246" y="312" font-size="15" font-weight="900" fill="#111827">САЛМАҒЫ / МАССА: {{ (p.packG / 1000) | number:'1.3-3' }} кг</text>
+              <text x="246" y="344" font-size="14" font-weight="900" fill="#991B1B">Клуб / MOOD Club: -10%</text>
+              <text x="246" y="392" font-size="22" font-weight="900" fill="#111827">ИТОГО: {{ getClubPackPrice(p) | number }} ₸</text>
+              <text x="246" y="445" font-size="12" font-weight="800" fill="#111827">Шебер / Мастер: ____________</text>
               <line x1="10" y1="475" x2="680" y2="475" stroke="#111827" stroke-width="3"/>
-              <text x="24" y="497" font-size="11" font-weight="700">«MOOD GROUP» шеберханасы: Алматы қ., Арай ТК, Г3 блогы</text>
+              <text x="24" y="500" font-size="11" font-weight="700" fill="#111827">Ремесленная мастерская «MOOD GROUP»: г. Алматы, ЖК Арай, блок Г3</text>
             </svg>
           </div>
-          <button class="btn btn-green" style="width:100%; margin-top:14px;" (click)="printDirectNow()">
-            🖨️ Отправить на принтер {{ erp.printerIp() }}:9100 (CP1251)
+          <button class="btn btn-green" style="width:100%; margin-top:10px;" (click)="store.printTspl(buildTsplCode())">
+            🖨️ Печать этикетки на TSC TE310 ({{ store.printerIp() }}:9100)
           </button>
+          <div style="font-size:11.5px; color:#79c0ff; margin-top:6px;">{{ store.lastPrintStatus() }}</div>
         }
       </div>
 
       <div class="card">
-        <h3>🖨️ TSPL Код для принтера TSC TE310</h3>
-        <pre class="tspl-pre">{{ buildTsplPayload() }}</pre>
+        <h3>🖨️ Готовый пакет команд TSPL (Вариант №2 и Акты приемки молока)</h3>
+        <div style="display:flex; gap:6px; margin-bottom:10px;">
+          <button class="btn btn-outline btn-sm" [class.active]="store.tsplMode() === 'PRODUCT'" (click)="store.tsplMode.set('PRODUCT')">Этикетка товара</button>
+          <button class="btn btn-outline btn-sm" [class.active]="store.tsplMode() === 'MILK_OK'" (click)="store.tsplMode.set('MILK_OK')">Акт молока: ГОДНО</button>
+          <button class="btn btn-outline btn-sm" [class.active]="store.tsplMode() === 'MILK_BAD'" (click)="store.tsplMode.set('MILK_BAD')">Акт молока: БРАК</button>
+        </div>
+        <pre class="tspl-pre">{{ buildTsplCode() }}</pre>
       </div>
     </div>
-  </main>
-}
+  }
+</main>
 
-<!-- =================================================================== -->
-<!-- ПРАВАЯ ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ ТЕХКАРТЫ И ТРЕКИНГА (OFFCANVAS DRAWER)     -->
-<!-- =================================================================== -->
-@if (erp.drawerOpen()) {
-  <!-- Затемняющий фон кликабелен для закрытия -->
-  <div class="drawer-backdrop" (click)="erp.closeTechCardDrawer()"></div>
-
-  <aside class="drawer-panel">
-    @if (erp.currentDetailedCard(); as card) {
-      <header class="drawer-header">
-        <div>
-          <span class="plu-tag">{{ card.plu }} • {{ card.brand }}</span>
-          <h2 style="margin:4px 0 0 0; font-size:16px; color:#fff;">{{ card.name }}</h2>
-          <div style="font-size:11.5px; color:var(--muted);">{{ card.dept }}</div>
-        </div>
-        <button class="btn btn-outline btn-sm" (click)="erp.closeTechCardDrawer()">✕ Закрыть</button>
-      </header>
-
-      <div class="drawer-body">
-        <!-- ИНДИКАТОР ПРОГРЕССА ВЫПОЛНЕНИЯ ПАРТИИ -->
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-          <strong>Прогресс выполнения партии:</strong>
-          <span style="font-weight:800; color:var(--amber);">{{ erp.cardProgressPct() }}%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" [style.width.%]="erp.cardProgressPct()"></div>
-        </div>
-
-        <div style="background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:11.5px;">
-          <div><strong>🎯 Норма выхода:</strong> {{ card.outputNorm }}</div>
-          <div style="margin-top:4px;"><strong>⚙️ Оборудование:</strong> {{ card.equipment }}</div>
-          <div style="margin-top:4px;"><strong>📦 Упаковка:</strong> {{ card.packagingRule }}</div>
-          <div style="margin-top:4px;"><strong>❄️ Хранение:</strong> {{ card.storageNorm }}</div>
-        </div>
-
-        <h4 style="margin:14px 0 8px 0; color:var(--amber);">🥩 Ингредиенты и закладка на замес:</h4>
-        <table class="mini-table" style="margin-bottom:16px;">
-          <thead><tr><th>Компонент</th><th>Количество</th><th>Примечание</th></tr></thead>
-          <tbody>
-            @for (raw of card.rawMaterials; track raw.name) {
-              <tr>
-                <td><strong>{{ raw.name }}</strong></td>
-                <td style="color:var(--amber); font-weight:700;">{{ raw.amount }}</td>
-                <td style="color:var(--muted); font-size:11px;">{{ raw.note || '' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <h4 style="margin:0; color:#7ee787;">📋 Пошаговый треккинг регламента ХАССП:</h4>
-          <button class="btn btn-outline btn-sm" style="font-size:10.5px;" (click)="erp.resetCurrentCardSteps()">
-            Сбросить чекбоксы
-          </button>
-        </div>
-
-        <!-- СПИСОК ПОШАГОВЫХ ЭТАПОВ С ЧЕКБОКСАМИ -->
-        @for (step of card.steps; track step.id) {
-          <div class="step-item" [class.is-done]="step.done">
-            <label class="step-header" (click)="erp.toggleStepDone(step.id)">
-              <input type="checkbox" class="step-checkbox" [checked]="step.done" (change)="erp.toggleStepDone(step.id)">
-              <span [style.textDecoration]="step.done ? 'line-through' : 'none'">
-                Шаг {{ step.id }}. {{ step.title }}
-              </span>
-            </label>
-
-            <div style="margin-top:6px; font-size:12px; color:var(--muted); padding-left:28px;">
-              {{ step.desc }}
-            </div>
-
-            <div style="padding-left:28px; display:flex; gap:8px; flex-wrap:wrap;">
-              @if (step.ccpHaccp) {
-                <span class="step-badge-haccp">🛡️ {{ step.ccpHaccp }}</span>
-              }
-              @if (step.tempTime) {
-                <span class="step-badge-temp">⏱️ {{ step.tempTime }}</span>
-              }
-            </div>
-          </div>
-        }
-      </div>
-
-      <footer class="drawer-footer">
-        <button class="btn btn-green" style="flex:1;" (click)="openPluInTspl(card.plu); erp.closeTechCardDrawer();">
-          🖨️ Партия готова: перейти к печати этикетки (TSC TE310) →
-        </button>
-      </footer>
-    }
-  </aside>
-}
+<!-- ПРАВАЯ ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ ПОШАГОВОЙ ТЕХКАРТЫ И ТРЕКИНГА ХАССП -->
+<app-haccp-drawer
+  [isOpen]="store.drawerOpen()"
+  [line]="currentLine()"
+  (closed)="store.drawerOpen.set(false)"
+  (stepChanged)="store.syncWithServer()"
+  (goToPrint)="openInTspl($event)">
+</app-haccp-drawer>

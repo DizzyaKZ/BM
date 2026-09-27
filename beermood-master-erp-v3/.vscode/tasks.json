@@ -12,7 +12,7 @@
       "type": "npm",
       "script": "bridge",
       "isBackground": true,
-      "label": "Start Local TSC TE310 Bridge"
+      "label": "Start Local TSC TE310 Bridge (192.168.1.17)"
     },
     {
       "type": "npm",
@@ -20,7 +20,7 @@
       "problemMatcher": [
         "$tsc"
       ],
-      "label": "Build Production Bundle for PS.kz"
+      "label": "Build Production for PS.kz"
     }
   ]
 }

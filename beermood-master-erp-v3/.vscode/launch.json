@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "🚀 Debug MOOD GROUP ERP v3.1 (Chrome)",
+      "name": "Debug MOOD GROUP PRO ERP (Chrome)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",
