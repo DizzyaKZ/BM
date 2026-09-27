@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🚀 Debug MOOD GROUP ERP v3.1 (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "preLaunchTask": "npm: start",
+      "url": "http://localhost:4200/",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start",
+      "isBackground": true,
+      "problemMatcher": "$tsc-watch",
+      "label": "npm: start"
+    },
+    {
+      "type": "npm",
+      "script": "bridge",
+      "isBackground": true,
+      "label": "Start Local TSC TE310 Bridge"
+    },
+    {
+      "type": "npm",
+      "script": "build:pskz",
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "label": "Build Production Bundle for PS.kz"
+    }
+  ]
+}
