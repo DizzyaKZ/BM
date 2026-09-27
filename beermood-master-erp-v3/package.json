@@ -5,8 +5,7 @@
     "ng": "ng",
     "start": "ng serve --open",
     "bridge": "node local-bridge.js",
-    "build:pskz": "ng build --configuration production",
-    "sync:gh": "git -C .. add . && git -C .. commit -m 'Auto-sync updates' && git -C .. push"
+    "build:pskz": "ng build --configuration production"
   },
   "private": true,
   "dependencies": {
