@@ -4,6 +4,7 @@ export interface TechStep {
   instruction: string;
   durationMinutes: number;
   criticalHaccpPoint?: string;
+  completed?: boolean;
 }
 
 export interface KochCardItem {
@@ -15,6 +16,10 @@ export interface KochCardItem {
   packGrams: number;
   retailPricePerKgKzt: number;
   cogsKgKzt: number;
+  requiresBrine?: boolean;
+  brineBe?: number;
+  brineInjectionPct?: number;
+  meats: { name: string; pct: number }[];
   steps: TechStep[];
 }
 
@@ -27,24 +32,7 @@ export interface DairyCardItem {
   packGrams: number;
   retailPricePerPackKzt: number;
   cogsPackKzt: number;
+  requiresBrine?: boolean;
+  brinePct?: number;
   steps: TechStep[];
-}
-
-export interface MeatBrineResult {
-  waterLiters: number;
-  beDegrees: number;
-  nitriteSaltGrams: number;
-  dextroseGrams: number;
-  phosphateGrams: number;
-}
-
-export interface CheeseBrineResult {
-  waterLiters: number;
-  saltPct: number;
-  saltGrams: number;
-  cacl2Grams: number;
-  targetPh: number;
-  tempCelsius: number;
-  cheeseWeightKg: number;
-  saltingHours: number;
 }

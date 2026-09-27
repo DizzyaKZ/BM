@@ -1,4 +1,52 @@
-import { Injectable, signal } from '@angular/core';
+const fs = require('fs');
+const path = require('path');
+
+const root = path.join(__dirname, 'beermood-master-erp-v3', 'src', 'app');
+
+// 1. МОДЕЛИ ДАННЫХ
+const modelsCode = `export interface TechStep {
+  stepNumber: number;
+  title: string;
+  instruction: string;
+  durationMinutes: number;
+  criticalHaccpPoint?: string;
+  completed?: boolean;
+}
+
+export interface KochCardItem {
+  code: string;
+  plu: string;
+  title: string;
+  titleKz: string;
+  yieldPct: number;
+  packGrams: number;
+  retailPricePerKgKzt: number;
+  cogsKgKzt: number;
+  requiresBrine?: boolean;
+  brineBe?: number;
+  brineInjectionPct?: number;
+  meats: { name: string; pct: number }[];
+  steps: TechStep[];
+}
+
+export interface DairyCardItem {
+  code: string;
+  plu: string;
+  title: string;
+  titleKz: string;
+  milkNormPerKg: number;
+  packGrams: number;
+  retailPricePerPackKzt: number;
+  cogsPackKzt: number;
+  requiresBrine?: boolean;
+  brinePct?: number;
+  steps: TechStep[];
+}
+`;
+fs.writeFileSync(path.join(root, 'models', 'master-erp.model.ts'), modelsCode, 'utf8');
+
+// 2. СЕРВИС MASTER ERP
+const serviceCode = `import { Injectable, signal } from '@angular/core';
 import { KochCardItem, DairyCardItem, TechStep } from '../models/master-erp.model';
 
 @Injectable({ providedIn: 'root' })
@@ -10,12 +58,12 @@ export class MasterErpService {
   kochBatchKg = signal<number>(20);
   dairyBatchLiters = signal<number>(100);
 
-  // Таблица плотности Бёме Германа Коха (°Bé -> г соли на 1 л воды)
+  // Таблица Бёме Германа Коха (°Bé -> г соли на 1 л воды)
   readonly KOCH_BE_TABLE: Record<number, number> = {
     8: 87, 9: 99, 10: 112, 11: 126, 12: 139, 13: 153, 14: 167, 16: 198, 18: 231, 20: 265
   };
 
-  // ТАЙМЕР И ЗВУКОВОЙ СИГНАЛ (Web Audio API)
+  // ТАЙМЕР И ЗВУКОВОЙ СИГНАЛ
   timerActive = signal<boolean>(false);
   remainingSeconds = signal<number>(0);
   currentTimerStepTitle = signal<string>('');
@@ -185,6 +233,7 @@ export class MasterErpService {
     }
   ]);
 
+  // ТЕХКАРТЫ СЫРОВАРНИ
   dairyCards = signal<DairyCardItem[]>([
     {
       code: 'CH-01',
@@ -248,3 +297,71 @@ export class MasterErpService {
     this.drawerOpen.set(false);
   }
 }
+`;
+fs.writeFileSync(path.join(root, 'services', 'master-erp.service.ts'), serviceCode, 'utf8');
+
+// 3. КОНТРОЛЛЕР APP COMPONENT
+const appTsCode = `import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MasterErpService } from './services/master-erp.service';
+import { KochCardItem, DairyCardItem, TechStep } from './models/master-erp.model';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  erp = inject(MasterErpService);
+
+  // Калькуляторы в цехах
+  meatBrineWater = 10;
+  meatBrineBe = 10;
+  showMeatBrineCalc = false;
+
+  cheeseBrineWater = 15;
+  cheeseBrinePct = 20;
+  cheeseBrineWeight = 1.0;
+  showCheeseBrineCalc = false;
+
+  openProductTtk(product: KochCardItem | DairyCardItem): void {
+    this.erp.selectedProduct.set(product);
+    this.erp.drawerOpen.set(true);
+  }
+
+  closeDrawer(): void {
+    this.erp.drawerOpen.set(false);
+  }
+
+  toggleStep(step: TechStep): void {
+    step.completed = !step.completed;
+  }
+
+  calcProgress(steps: TechStep[]): number {
+    if (!steps || !steps.length) return 0;
+    const done = steps.filter(s => s.completed).length;
+    return Math.round((done / steps.length) * 100);
+  }
+
+  formatTime(totalSec: number): string {
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return \`\${m.toString().padStart(2, '0')}:\${s.toString().padStart(2, '0')}\`;
+  }
+
+  // Расчет рассола для мяса внутри карточки ТТК
+  getMeatCardBrine(card: KochCardItem) {
+    const waterL = Math.max(1, Math.round((this.erp.kochBatchKg() * (card.brineInjectionPct || 10)) / 100));
+    return this.erp.calcMeatBrine(waterL, card.brineBe || 10);
+  }
+
+  // Расчет рассола для сыра внутри карточки ТТК
+  getCheeseCardBrine(card: DairyCardItem) {
+    return this.erp.calcCheeseBrine(10, card.brinePct || 18, card.packGrams / 1000);
+  }
+}
+`;
+fs.writeFileSync(path.join(root, 'app.component.ts'), appTs
