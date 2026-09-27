@@ -1,399 +1,226 @@
+
 <header class="top-bar">
-  <div style="font-size:15.5px; font-weight:800; display:flex; align-items:center; gap:10px;">
-    <span>🏭 MOOD GROUP // PRO MANUFACTURING ERP v3.2</span>
-    <span style="background:var(--amber); color:#000; padding:2px 8px; border-radius:4px; font-size:11px;">ЖК «Арай» • VS Code + PS.kz PHP/MySQL</span>
+  <div class="brand">
+    <h1>🏭 BEERMOOD PRO MANUFACTURING ERP v3.3</h1>
+    <p>ЖК «Арай» • Комплекс 149,4 м² • Производственный контур -4.200 и -7.800</p>
   </div>
-  <div style="display:flex; align-items:center; gap:12px;">
-    <span style="font-size:12px; color:#7ee787; font-weight:700;">{{ store.syncBanner() }}</span>
-    <button class="btn btn-outline btn-sm" (click)="openDrawer(store.selectedPlu())">📋 Открыть техкарту ХАССП ({{ store.selectedPlu() }})</button>
-    <button class="btn btn-outline btn-sm" style="color:#ffa198; border-color:#f85149;" (click)="store.resetAll()">↻ Сброс БД</button>
+  <div class="top-right">
+    @if (erp.timerActive()) {
+      <div class="timer-badge blink">
+        ⏱️ ИДЕТ ШАГ: {{ erp.currentTimerStepTitle() }} — <strong>{{ formatSeconds(erp.remainingSeconds()) }}</strong>
+      </div>
+    }
+    <button class="btn btn-outline btn-sm" (click)="erp.resetAllData()">Сброс</button>
   </div>
 </header>
 
+<!-- ГЛАВНАЯ НАВИГАЦИЯ -->
 <nav class="nav-tabs">
-  <button class="nav-tab" [class.active]="store.activeTab() === 'giant'" (click)="store.activeTab.set('giant')">
-    1. 📅 30-дневный GIANT-план (24 линии + Анти-затоваривание)
+  <button class="nav-tab" [class.active]="erp.activeTab() === 'giant'" (click)="erp.activeTab.set('giant')">
+    🥩 Рецептуры и Карты Г. Коха
   </button>
-  <button class="nav-tab" [class.active]="store.activeTab() === 'qc_warehouse'" (click)="store.activeTab.set('qc_warehouse')">
-    2. 🔬 Приемка сырья, Лаборатория (Эксперт Профи) и Перемещения
+  <button class="nav-tab" [class.active]="erp.activeTab() === 'dairy'" (click)="erp.activeTab.set('dairy')">
+    🧀 Сыроварня Casaro
   </button>
-  <button class="nav-tab" [class.active]="store.activeTab() === 'orders_demand'" (click)="store.activeTab.set('orders_demand')">
-    3. 📦 Прием заказов (Telegram ЖК Арай), Продажи и Потребность
+  <button class="nav-tab" [class.active]="erp.activeTab() === 'meat_brine'" (click)="erp.activeTab.set('meat_brine')">
+    🧪 Рассолы для мяса (°Bé Коха)
   </button>
-  <button class="nav-tab" [class.active]="store.activeTab() === 'koch'" (click)="store.activeTab.set('koch')">
-    4. 🥩 Технолог мясного цеха Г. Коха + Рассолы (°Be)
+  <button class="nav-tab" [class.active]="erp.activeTab() === 'cheese_brine'" (click)="erp.activeTab.set('cheese_brine')">
+    🧂 Рассолы для сыра (Casaro)
   </button>
-  <button class="nav-tab" [class.active]="store.activeTab() === 'dairy_bread'" (click)="store.activeTab.set('dairy_bread')">
-    5. 🧀🥖 Техкарты Сыроварни (Casaro) и Пекарни (Unox)
-  </button>
-  <button class="nav-tab" [class.active]="store.activeTab() === 'spicelab'" (click)="store.activeTab.set('spicelab')">
-    6. 🌶️ SPICE LAB Алекса Крамера и Соусы
-  </button>
-  <button class="nav-tab" [class.active]="store.activeTab() === 'tspl'" (click)="store.activeTab.set('tspl')">
-    7. 🖨️ Центр маркировки TSC TE310 (SVG Вариант №2)
+  <button class="nav-tab" [class.active]="erp.activeTab() === 'timer_hub'" (click)="erp.activeTab.set('timer_hub')">
+    ⏱️ Пошаговый таймер техпроцесса
   </button>
 </nav>
 
 <main class="workspace">
-  <!-- ПЕРЕИСПОЛЬЗУЕМАЯ ПАНЕЛЬ KPI В ВЕРХНЕЙ ЧАСТИ -->
-  <div class="kpi-strip">
-    <app-kpi-badge title="Месячный выпуск (4 цеха)" value="800 кг мяса • 1 900 л молока" subtitle="1 600 буханок • 60 кг соусов • 140 суп-китов"></app-kpi-badge>
-    <app-kpi-badge title="Оборотный капитал сырья" value="&#36;1,620 (810 000 ₸)" subtitle="Цикл оборота: 4,0 дня (7,5 обор./мес)"></app-kpi-badge>
-    <app-kpi-badge title="Заказы в доставке ЖК Арай" [value]="store.orders().length + ' активных заказа'" subtitle="Утро 07:30–09:00 / Вечер 18:30–20:00" valColor="#79c0ff"></app-kpi-badge>
-    <app-kpi-badge title="Защита от затоваривания" [value]="store.giantPivot() ? 'Спасено: 319 кг в буфер' : 'Штатный баланс (0% потерь)'" [valColor]="store.giantPivot() ? '#d2a8ff' : '#7ee787'" subtitle="Перевод в Белпер Кнолле, Пломбир и Билтонг"></app-kpi-badge>
-    <app-kpi-badge title="Чистая прибыль (Net Profit)" [value]="store.giantPivot() ? '&#36;19,840 / мес.' : '&#36;20,570 / мес.'" valColor="#7ee787" subtitle="40% дивиденды / 60% реинвест"></app-kpi-badge>
-  </div>
-
-  <!-- ==================== ВКЛАДКА 1: 30-ДНЕВНЫЙ GIANT-ЧАРТ ==================== -->
-  @if (store.activeTab() === 'giant') {
-    <div class="card" style="padding:10px 14px;">
-      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px;">
-        <div style="display:flex; flex-wrap:wrap; gap:6px;">
-          @for (d of depts; track d.id) {
-            <button class="btn btn-outline btn-sm" [class.active]="store.giantDept() === d.id" (click)="store.giantDept.set(d.id)">{{ d.label }}</button>
-          }
-        </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span>📅 День месяца: <strong style="color:var(--amber);">{{ store.giantDay() }} / 30</strong> ({{ getDow(store.giantDay()) }})
-            <input type="range" min="1" max="30" [ngModel]="store.giantDay()" (ngModelChange)="store.giantDay.set(+$event)" style="vertical-align:middle; width:130px;">
-          </span>
-          <button class="btn btn-purple btn-sm" [class.active]="store.giantPivot()" (click)="store.giantPivot.set(!store.giantPivot())">
-            {{ store.giantPivot() ? '🛡️ Защита от затоваривания АКТИВНА (-25% спрос)' : '⚡ Включить защиту от затоваривания' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="giant-wrap">
-      <table class="giant-table">
-        <thead>
-          <tr>
-            <th class="col-prod">PLU и Продукт (Клик — Техкарта ХАССП)</th>
-            <th class="col-meta">План/мес</th>
-            <th class="col-meta">Срок годн.</th>
-            <th class="col-stat">День {{ store.giantDay() }}</th>
-            @for (d of days30; track d) {
-              <th class="d-cell" [class.d-head-cur]="d === store.giantDay()" (click)="store.giantDay.set(d)">
-                <div>{{ d }}</div><div style="font-size:8.5px; font-weight:400;">{{ getDow(d) }}</div>
-              </th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (p of filteredLines(); track p.plu) {
-            <tr>
-              <td class="col-prod" [style.borderLeft]="p.plu === store.selectedPlu() ? '4px solid var(--amber)' : ''" (click)="openDrawer(p.plu)">
-                <span class="plu-tag">{{ p.plu }}</span> <strong>{{ p.name }}</strong>
-              </td>
-              <td class="col-meta"><strong>{{ getAdjustedKg(p) }} кг</strong><div style="font-size:9.5px; color:var(--muted);">{{ p.monthlyUnits }} уп.</div></td>
-              <td class="col-meta"><strong>{{ p.shelfDays }} сут.</strong><div style="font-size:9.5px; color:var(--muted);">{{ p.temp }}</div></td>
-              <td class="col-stat"><span class="pill" [ngClass]="getCell(p, store.giantDay()).pill">{{ getCell(p, store.giantDay()).label }}</span></td>
-              @for (d of days30; track d) {
-                <td class="d-cell" [ngClass]="getCell(p, d).cls" [class.d-col-cur]="d === store.giantDay()" (click)="selectPluAndDay(p.plu, d)">
-                  {{ getCell(p, d).sym }}
-                </td>
-              }
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
-
-  <!-- ==================== ВКЛАДКА 2: ПРИЕМКА, ЛАБОРАТОРИЯ И СКЛАД ==================== -->
-  @if (store.activeTab() === 'qc_warehouse') {
-    <div class="grid-2">
-      <div class="card">
-        <h3>
-          <span>🔬 Приемка сырья и Лаборатория качества («Эксперт Профи» + Hanna pH)</span>
-          <button class="btn btn-green btn-sm" (click)="acceptNewMilkBatch()">+ Принять партию молока (210 л)</button>
-        </h3>
-        <table class="mini-table">
-          <thead><tr><th>Партия</th><th>Поставщик</th><th>Объем</th><th>Жир/Белок</th><th>pH</th><th>Вода</th><th>Вердикт</th></tr></thead>
-          <tbody>
-            @for (b of store.rawBatches(); track b.batchId) {
-              <tr>
-                <td><strong>{{ b.batchId }}</strong></td>
-                <td>{{ b.supplier }}</td>
-                <td>{{ b.qty }} {{ b.unit }}</td>
-                <td>{{ b.fatPct }}% / {{ b.protPct }}%</td>
-                <td>{{ b.phVal }}</td>
-                <td [style.color]="b.waterAddedPct > 0 ? '#f85149' : '#7ee787'">{{ b.waterAddedPct }}%</td>
-                <td>
-                  <span class="pill" [ngClass]="b.verdict === 'PASSED' ? 'pill-ok' : 'pill-crit'">
-                    {{ b.verdict === 'PASSED' ? 'ГОДНО 1 СОРТ' : 'БРАК (ВОДА)' }}
-                  </span>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>
-          <span>🚚 Журнал перемещения товара (Цех -7.800 ⇄ Паб / Витрина / Вендинг)</span>
-          <button class="btn btn-outline btn-sm" (click)="recordQuickMovement()">+ Переместить партию на витрину</button>
-        </h3>
-        <table class="mini-table">
-          <thead><tr><th>Время</th><th>Партия</th><th>Продукт</th><th>Откуда -> Куда</th><th>Кол-во</th></tr></thead>
-          <tbody>
-            @for (m of store.movements(); track m.id) {
-              <tr>
-                <td>{{ m.movedAt }}</td>
-                <td><span class="plu-tag">{{ m.batchCode }}</span></td>
-                <td><strong>{{ m.productName }}</strong></td>
-                <td>{{ m.fromLoc }} → {{ m.toLoc }}</td>
-                <td>{{ m.qtyUnits }} уп.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  }
-
-  <!-- ==================== ВКЛАДКА 3: ЗАКАЗЫ, ПРОДАЖИ И ПОТРЕБНОСТЬ ==================== -->
-  @if (store.activeTab() === 'orders_demand') {
-    <app-order-intake
-      [orders]="store.orders()"
-      [lines]="store.lines()"
-      (createOrder)="addCustomerOrder($event)"
-      (packOrder)="packCustomerOrder($event)"
-      (printOrderLabel)="printCustomerOrder($event)">
-    </app-order-intake>
-  }
-
-  <!-- ==================== ВКЛАДКА 4: МЯСНОЙ ЦЕХ Г. КОХА + РАССОЛЫ ==================== -->
-  @if (store.activeTab() === 'koch') {
+  <!-- 1. ТЕХКАРТЫ МЯСНОГО ЦЕХА -->
+  @if (erp.activeTab() === 'giant') {
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <div>
-          <strong>🥩 Загрузка мясного сырья на партию (кг): </strong>
-          <input type="number" [ngModel]="store.kochBatchKg()" (ngModelChange)="store.kochBatchKg.set(+$event)" style="width:75px;">
-          <button class="btn btn-outline btn-sm" style="margin-left:6px;" (click)="store.kochBatchKg.set(20)">20 кг (Varmen Mini)</button>
-          <button class="btn btn-outline btn-sm" style="margin-left:4px;" (click)="store.kochBatchKg.set(100)">100 кг (Эталон Коха)</button>
+      <div class="card-head">
+        <h2>Технологические карты мясного цеха (Герман Кох ⇄ СТ РК)</h2>
+        <div class="ctrl-box">
+          <label>Загрузка сырья (кг):</label>
+          <input type="number" [ngModel]="erp.kochBatchKg()" (ngModelChange)="erp.kochBatchKg.set(+$event)" style="width:60px;">
         </div>
-        <div>
-          <strong>🧪 Конвертер рассолов Боме (°Be): </strong>
-          <select [ngModel]="store.brineBe()" (ngModelChange)="store.brineBe.set(+$event)">
-            <option [ngValue]="10">10°Be (10,8% соли — грудинка и ребра)</option>
-            <option [ngValue]="12">12°Be (13,0% соли — английский бекон и окорока)</option>
-            <option [ngValue]="14">14°Be (15,2% соли — ускоренный посол)</option>
+      </div>
+      <div class="grid">
+        @for (c of erp.kochCards(); track c.plu) {
+          <div class="item-card">
+            <div class="item-top">
+              <span class="badge-code">{{ c.code }}</span>
+              <span class="badge-plu">{{ c.plu }}</span>
+            </div>
+            <div class="item-title">{{ c.title }}</div>
+            <div class="item-kz">{{ c.titleKz }}</div>
+            <div class="econ-line">
+              <div>Выход: <strong>{{ c.yieldPct }}%</strong></div>
+              <div>Розница: <strong>{{ c.retailPricePerKgKzt | number }} ₸/кг</strong></div>
+              <div>Фасовка: <strong>{{ c.packGrams }} г</strong></div>
+            </div>
+            <button class="btn btn-blue" style="width:100%; margin-top:10px;" (click)="openDrawer(c)">
+              📋 Открыть пошаговый техпроцесс ({{ c.steps.length }} шагов)
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- 2. СЫРОВАРНЯ -->
+  @if (erp.activeTab() === 'dairy') {
+    <div class="card">
+      <div class="card-head">
+        <h2>Сыроварня и переработка молока (Сыроизготовители Casaro)</h2>
+        <div class="ctrl-box">
+          <label>Варка молока (литров):</label>
+          <input type="number" [ngModel]="erp.dairyBatchLiters()" (ngModelChange)="erp.dairyBatchLiters.set(+$event)" style="width:60px;">
+        </div>
+      </div>
+      <div class="grid">
+        @for (c of erp.dairyCards(); track c.plu) {
+          <div class="item-card">
+            <div class="item-top">
+              <span class="badge-code">{{ c.code }}</span>
+              <span class="badge-plu">{{ c.plu }}</span>
+            </div>
+            <div class="item-title">{{ c.title }}</div>
+            <div class="item-kz">{{ c.titleKz }}</div>
+            <div class="econ-line">
+              <div>Норма молока: <strong>{{ c.milkNormPerKg }} л/кг</strong></div>
+              <div>Цена за банку/уп: <strong>{{ c.retailPricePerPackKzt | number }} ₸</strong></div>
+            </div>
+            <button class="btn btn-green" style="width:100%; margin-top:10px;" (click)="openDrawer(c)">
+              🧀 Открыть регламент варки и посолки
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- 3. МОДУЛЬ МЯСНЫХ РАССОЛОВ -->
+  @if (erp.activeTab() === 'meat_brine') {
+    <div class="card">
+      <h2>🥩 Калькулятор приготовления посолочных рассолов (Герман Кох)</h2>
+      <p style="color:#8b949e; font-size:12.5px; margin-bottom:14px;">
+        Точный расчет навески нитритной соли, декстрозы и фосфатов по плотности Бёме (°Bé) для шприцевания и мокрого посола.
+      </p>
+      <div class="input-row">
+        <label>Объем чистой воды (литров):
+          <input type="number" [(ngModel)]="meatWater" min="1" max="100">
+        </label>
+        <label>Плотность рассола (°Bé):
+          <select [(ngModel)]="meatBe">
+            <option [value]="8">8 °Bé (87 г/л) — Деликатный посол вырезки и птицы</option>
+            <option [value]="10">10 °Bé (112 г/л) — Стандарт Коха: ребра (1-002), грудинка (1-032)</option>
+            <option [value]="12">12 °Bé (139 г/л) — Окорок, ветчина, крупный кусок</option>
+            <option [value]="14">14 °Bé (167 г/л) — Мокрый посол шпика и корейки</option>
+            <option [value]="18">18 °Bé (231 г/л) — Насыщенный доливочный рассол</option>
           </select>
-          <span style="margin-left:8px; color:#79c0ff;">
-            Шприцевание 20%: <strong>{{ (store.kochBatchKg() * 0.2) | number:'1.1-1' }} л льда/воды + {{ getBrineSaltGrams() }} г нитритной соли</strong>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="cards-grid">
-      @for (line of getLinesByDept('Мясной цех MEAT&BREAD'); track line.plu) {
-        <div class="tech-card">
-          <div>
-            <div style="display:flex; justify-content:space-between;">
-              <span class="plu-tag">{{ line.plu }}</span>
-              <span class="pill pill-ok">Выход {{ line.yieldPct }}% • На полке: {{ line.shelfStockUnits }} уп.</span>
-            </div>
-            <h3 style="margin:6px 0;">{{ line.name }}</h3>
-            <div style="font-size:11.5px; color:#79c0ff;">{{ line.equipment }}</div>
-            <table class="mini-table">
-              @for (r of line.rawNorms; track r.name) {
-                <tr><td>{{ r.name }}</td><td>{{ r.qty }}</td></tr>
-              }
-            </table>
-          </div>
-          <app-pack-econ
-            [line]="line"
-            [batchInputKg]="store.kochBatchKg()"
-            (changed)="store.syncWithServer()"
-            (openSteps)="openDrawer($event)"
-            (openTspl)="openInTspl($event)">
-          </app-pack-econ>
-        </div>
-      }
-    </div>
-  }
-
-  <!-- ==================== ВКЛАДКА 5: СЫРОВАРНЯ CASARO И ПЕКАРНЯ UNOX ==================== -->
-  @if (store.activeTab() === 'dairy_bread') {
-    <h3 style="color:var(--cheese); margin:4px 0 10px 0;">🧀 Технологические карты сыроварни CHEESY MOOD (2× Casaro 100 л)</h3>
-    <div class="cards-grid">
-      @for (line of getLinesByDept('CHEESY MOOD'); track line.plu) {
-        <div class="tech-card">
-          <div>
-            <div style="display:flex; justify-content:space-between;">
-              <span class="plu-tag" style="color:var(--cheese);">{{ line.plu }}</span>
-              <span class="pill pill-ok">Срок: {{ line.shelfDays }} сут. ({{ line.temp }})</span>
-            </div>
-            <h3 style="margin:6px 0;">{{ line.name }}</h3>
-            <table class="mini-table">
-              @for (r of line.rawNorms; track r.name) {
-                <tr><td>{{ r.name }}</td><td>{{ r.qty }}</td></tr>
-              }
-            </table>
-          </div>
-          <app-pack-econ
-            [line]="line"
-            [batchInputKg]="store.dairyBatchLiters()"
-            (changed)="store.syncWithServer()"
-            (openSteps)="openDrawer($event)"
-            (openTspl)="openInTspl($event)">
-          </app-pack-econ>
-        </div>
-      }
-    </div>
-
-    <h3 style="color:var(--amber); margin:22px 0 10px 0;">🥖 Технологические карты ремесленной пекарни MEAT&amp;BREAD (Пароконвектомат Unox)</h3>
-    <div class="cards-grid">
-      @for (line of getLinesByDept('Пекарня MEAT&BREAD'); track line.plu) {
-        <div class="tech-card">
-          <div>
-            <div style="display:flex; justify-content:space-between;">
-              <span class="plu-tag">{{ line.plu }}</span>
-              <span class="pill pill-warn">Zero-Waste синергия сыворотки</span>
-            </div>
-            <h3 style="margin:6px 0;">{{ line.name }}</h3>
-            <table class="mini-table">
-              @for (r of line.rawNorms; track r.name) {
-                <tr><td>{{ r.name }}</td><td>{{ r.qty }}</td></tr>
-              }
-            </table>
-          </div>
-          <app-pack-econ
-            [line]="line"
-            [batchInputKg]="22"
-            (changed)="store.syncWithServer()"
-            (openSteps)="openDrawer($event)"
-            (openTspl)="openInTspl($event)">
-          </app-pack-econ>
-        </div>
-      }
-    </div>
-  }
-
-  <!-- ==================== ВКЛАДКА 6: SPICE LAB КРАМЕРА И ЛИСТ ЗАКАЗА СЫРЬЯ ==================== -->
-  @if (store.activeTab() === 'spicelab') {
-    <div class="grid-2">
-      <div class="card">
-        <h3><span>🌶️ Склад специй Алекса Крамера и Авто-формирование листа заказа поставщикам</span></h3>
-        <table class="mini-table">
-          <thead><tr><th>Пряность</th><th>Помол</th><th>Мин. норма</th><th>Остаток (г)</th><th>К заказу</th></tr></thead>
-          <tbody>
-            @for (sp of store.spices(); track sp.code) {
-              <tr>
-                <td><strong>{{ sp.name }}</strong></td>
-                <td>{{ sp.grind }} {{ sp.roast ? '🔥' : '' }}</td>
-                <td>{{ sp.min }} г</td>
-                <td><input type="number" [(ngModel)]="sp.stock" step="50" style="width:85px;"></td>
-                <td>
-                  @if (sp.stock < sp.min) {
-                    <span class="pill pill-crit">ЗАКАЗАТЬ {{ sp.min - sp.stock + 500 }} г</span>
-                  } @else {
-                    <span class="pill pill-ok">В НОРМЕ</span>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+        </label>
       </div>
 
-      <div class="card">
-        <h3><span>🥫 Ферментированные соусы, Суп-киты и Zero-Waste позиции</span></h3>
-        @for (line of getLinesByDept('BEERMOOD & SPICE LAB'); track line.plu) {
-          <div style="background:var(--panel-alt); padding:9px 12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <span class="plu-tag">{{ line.plu }}</span> <strong> {{ line.name }}</strong>
-              <div style="font-size:11px; color:var(--muted);">{{ line.pivotAction }}</div>
-            </div>
-            <button class="btn btn-sm" (click)="openDrawer(line.plu)">📋 Техкарта</button>
-          </div>
-        }
+      @let mb = erp.calculateMeatBrine(meatWater, meatBe);
+      <div class="res-box">
+        <div class="res-item"><span>Объем воды:</span><strong>{{ mb.waterLiters }} л</strong></div>
+        <div class="res-item"><span>Нитритная соль:</span><strong class="hi">{{ mb.nitriteSaltGrams }} г</strong></div>
+        <div class="res-item"><span>Декстроза / Сахар:</span><strong>{{ mb.dextroseGrams }} г</strong></div>
+        <div class="res-item"><span>Фосфат пищевой:</span><strong>{{ mb.phosphateGrams }} г</strong></div>
+      </div>
+      <div class="note">
+        💡 <strong>Технологический регламент:</strong> Температура рассола при шприцевании: <strong>+2...+4 °C</strong>. Давление шприца не более <strong>1.5 атм</strong> (исключает разрыв мышечных волокон).
       </div>
     </div>
   }
 
-  <!-- ==================== ВКЛАДКА 7: ЦЕНТР МАРКИРОВКИ TSC TE310 ==================== -->
-  @if (store.activeTab() === 'tspl') {
-    <div class="grid-2">
-      <div class="card">
-        <h3>
-          <span>🏷️ Живой SVG-макет этикетки ТермоТОП 58×60 мм (Вариант №2, 300 dpi)</span>
-          <span class="pill pill-ok">IP: {{ store.printerIp() }}:9100</span>
-        </h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
-          <label>Продукт (24 PLU):
-            <select [ngModel]="store.selectedPlu()" (ngModelChange)="store.selectedPlu.set($event)" style="width:100%; margin-top:3px;">
-              @for (p of store.lines(); track p.plu) {
-                <option [ngValue]="p.plu">{{ p.plu }} — {{ p.name }}</option>
-              }
-            </select>
-          </label>
-          <label>Код сквозной партии сырья:
-            <input type="text" [ngModel]="store.tsplBatch()" (ngModelChange)="store.tsplBatch.set($event)" style="width:100%; margin-top:3px; font-family:monospace;">
-          </label>
-        </div>
-
-        @if (currentLine(); as p) {
-          <div style="max-width:390px; margin:0 auto;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 715" width="100%" style="background:#fff; border-radius:8px; font-family:Arial,sans-serif;">
-              <rect x="10" y="10" width="670" height="695" rx="4" fill="none" stroke="#111827" stroke-width="3.5"/>
-              <text x="30" y="36" font-size="18" font-weight="900" fill="#111827">{{ p.brand }} * MOOD GROUP</text>
-              <text x="535" y="35" font-size="13" font-weight="800" fill="#111827">СТ РК / ГОСТ</text>
-              <line x1="10" y1="50" x2="680" y2="50" stroke="#111827" stroke-width="3"/>
-              <text x="345" y="78" font-size="20" font-weight="900" text-anchor="middle" fill="#111827">{{ p.kzTitle }}</text>
-              <rect x="185" y="88" width="320" height="21" rx="3" fill="#111827"/>
-              <text x="345" y="103" font-size="11.5" font-weight="800" text-anchor="middle" fill="#FFFFFF">{{ p.subTitle }}</text>
-              <line x1="10" y1="117" x2="680" y2="117" stroke="#111827" stroke-width="3"/>
-              <text x="22" y="134" font-size="11" font-weight="700" fill="#111827">Құрамы / Состав: {{ p.comp }}</text>
-              <text x="22" y="151" font-size="11" font-weight="700" fill="#111827">100 г: Б — {{ p.prot }} г, Ж — {{ p.fat }} г, У — {{ p.carb }} г. {{ getKcal(p) }} ккал.</text>
-              <rect x="20" y="158" width="650" height="32" fill="#FEF3C7" rx="3"/>
-              <text x="26" y="172" font-size="10" font-weight="800" fill="#92400E">{{ p.kzPair }}</text>
-              <text x="26" y="185" font-size="10" font-weight="700" fill="#78350F">{{ p.ruPair }}</text>
-              <line x1="10" y1="198" x2="680" y2="198" stroke="#111827" stroke-width="1.5"/>
-              <text x="22" y="217" font-size="12" font-weight="800" fill="#111827">Дайындалған: 27.09.2026 | Партия: {{ store.tsplBatch() }}</text>
-              <text x="22" y="241" font-size="14" font-weight="900" fill="#991B1B">ЖАРАМДЫ / ГОДЕН: {{ p.shelfDays }} тәул./суток ({{ p.temp }})</text>
-              <line x1="10" y1="254" x2="680" y2="254" stroke="#111827" stroke-width="3"/>
-              <rect x="35" y="272" width="155" height="155" fill="none" stroke="#111827" stroke-width="3"/>
-              <text x="112" y="355" font-size="12" font-weight="900" text-anchor="middle" fill="#111827">[QR EAN+BATCH]</text>
-              <text x="112" y="452" font-size="14" font-weight="900" text-anchor="middle" fill="#111827">{{ getEan12(p) }}</text>
-              <line x1="228" y1="254" x2="228" y2="475" stroke="#111827" stroke-width="2.5"/>
-              <text x="246" y="280" font-size="13" font-weight="800" fill="#111827">Бағасы / Цена кг: {{ p.priceKg | number }} ₸</text>
-              <text x="246" y="312" font-size="15" font-weight="900" fill="#111827">САЛМАҒЫ / МАССА: {{ (p.packG / 1000) | number:'1.3-3' }} кг</text>
-              <text x="246" y="344" font-size="14" font-weight="900" fill="#991B1B">Клуб / MOOD Club: -10%</text>
-              <text x="246" y="392" font-size="22" font-weight="900" fill="#111827">ИТОГО: {{ getClubPackPrice(p) | number }} ₸</text>
-              <text x="246" y="445" font-size="12" font-weight="800" fill="#111827">Шебер / Мастер: ____________</text>
-              <line x1="10" y1="475" x2="680" y2="475" stroke="#111827" stroke-width="3"/>
-              <text x="24" y="500" font-size="11" font-weight="700" fill="#111827">Ремесленная мастерская «MOOD GROUP»: г. Алматы, ЖК Арай, блок Г3</text>
-            </svg>
-          </div>
-          <button class="btn btn-green" style="width:100%; margin-top:10px;" (click)="store.printTspl(buildTsplCode())">
-            🖨️ Печать этикетки на TSC TE310 ({{ store.printerIp() }}:9100)
-          </button>
-          <div style="font-size:11.5px; color:#79c0ff; margin-top:6px;">{{ store.lastPrintStatus() }}</div>
-        }
+  <!-- 4. МОДУЛЬ СЫРНЫХ РАССОЛОВ -->
+  @if (erp.activeTab() === 'cheese_brine') {
+    <div class="card">
+      <h2>🧀 Калькулятор рассола для сыроделия (Casaro)</h2>
+      <p style="color:#8b949e; font-size:12.5px; margin-bottom:14px;">
+        Балансировка солености, ионов кальция (CaCl₂) и расчет времени выдержки сыра без ослизнения корки.
+      </p>
+      <div class="input-row">
+        <label>Объем воды (литров):
+          <input type="number" [(ngModel)]="cheeseWater" min="1" max="200">
+        </label>
+        <label>Концентрация соли:
+          <select [(ngModel)]="cheesePct">
+            <option [value]="16">16% (190 г/л) — Сулугуни, Моцарелла</option>
+            <option [value]="20">20% (250 г/л) — Качотта, полутвердые сыры</option>
+          </select>
+        </label>
+        <label>Масса головки сыра (кг):
+          <input type="number" [(ngModel)]="cheeseWeight" step="0.1" min="0.2">
+        </label>
       </div>
 
-      <div class="card">
-        <h3>🖨️ Готовый пакет команд TSPL (Вариант №2 и Акты приемки молока)</h3>
-        <div style="display:flex; gap:6px; margin-bottom:10px;">
-          <button class="btn btn-outline btn-sm" [class.active]="store.tsplMode() === 'PRODUCT'" (click)="store.tsplMode.set('PRODUCT')">Этикетка товара</button>
-          <button class="btn btn-outline btn-sm" [class.active]="store.tsplMode() === 'MILK_OK'" (click)="store.tsplMode.set('MILK_OK')">Акт молока: ГОДНО</button>
-          <button class="btn btn-outline btn-sm" [class.active]="store.tsplMode() === 'MILK_BAD'" (click)="store.tsplMode.set('MILK_BAD')">Акт молока: БРАК</button>
+      @let cb = erp.calculateCheeseBrine(cheeseWater, cheesePct, cheeseWeight);
+      <div class="res-box">
+        <div class="res-item"><span>Нейодированная соль:</span><strong class="hi">{{ cb.saltGrams }} г</strong></div>
+        <div class="res-item"><span>Хлористый кальций (CaCl₂):</span><strong>{{ cb.cacl2Grams }} г</strong> (защита от размягчения)</div>
+        <div class="res-item"><span>Кислотность рассола (pH):</span><strong>{{ cb.targetPh }}</strong> (сыворотка/молочная кислота)</div>
+        <div class="res-item"><span>Рекомендуемое время посолки:</span><strong class="hi">~{{ cb.saltingHours }} ч</strong> (при 10–12 °C)</div>
+      </div>
+      <div class="note">
+        ⚠️ <strong>Контроль ХАССП:</strong> Температура рассола строго <strong>10–12 °C</strong>. При превышении 14 °C развиваются дефекты корки; ниже 9 °C диффузия соли замедляется.
+      </div>
+    </div>
+  }
+
+  <!-- 5. ЦЕНТРАЛЬНЫЙ ТАЙМЕР ТЕХПРОЦЕССА -->
+  @if (erp.activeTab() === 'timer_hub') {
+    <div class="card">
+      <h2>⏱️ Мониторинг пошагового выполнения техпроцесса</h2>
+      <div class="timer-center">
+        <div class="digits" [class.blink]="erp.timerActive()">
+          {{ formatSeconds(erp.remainingSeconds()) }}
         </div>
-        <pre class="tspl-pre">{{ buildTsplCode() }}</pre>
+        <div class="step-label">
+          {{ erp.currentTimerStepTitle() || 'Таймер остановлен. Выберите шаг из техкарты или запустите тест.' }}
+        </div>
+        <div class="btn-group">
+          @if (erp.timerActive()) {
+            <button class="btn btn-warn" (click)="erp.pauseTimer()">⏸ Пауза</button>
+          }
+          <button class="btn btn-outline" (click)="erp.stopTimer()">⏹ Сброс</button>
+          <button class="btn btn-blue" (click)="erp.playAlarmSignal()">🔊 Тест звукового сигнала (880 Гц)</button>
+        </div>
       </div>
     </div>
   }
 </main>
 
-<!-- ПРАВАЯ ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ ПОШАГОВОЙ ТЕХКАРТЫ И ТРЕКИНГА ХАССП -->
-<app-haccp-drawer
-  [isOpen]="store.drawerOpen()"
-  [line]="currentLine()"
-  (closed)="store.drawerOpen.set(false)"
-  (stepChanged)="store.syncWithServer()"
-  (goToPrint)="openInTspl($event)">
-</app-haccp-drawer>
+<!-- ПРАВАЯ ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ ТЕХНОЛОГИЧЕСКОЙ КАРТЫ (OFFCANVAS DRAWER) -->
+@if (erp.drawerOpen() && erp.activeTechCard()) {
+  <div class="drawer-overlay" (click)="closeDrawer()"></div>
+  <aside class="drawer">
+    <div class="drawer-head">
+      <div>
+        <span class="badge-code">{{ erp.activeTechCard()!.code }}</span>
+        <h3>{{ erp.activeTechCard()!.title }}</h3>
+      </div>
+      <button class="btn-close" (click)="closeDrawer()">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <h4>Пошаговый технологический процесс с контролем времени</h4>
+      @for (st of erp.activeTechCard()!.steps; track st.stepNumber) {
+        <div class="step-card">
+          <div class="step-head">
+            <strong>Шаг {{ st.stepNumber }}: {{ st.title }}</strong>
+            <span class="step-dur">{{ st.durationMinutes }} мин</span>
+          </div>
+          <div class="step-inst">{{ st.instruction }}</div>
+          @if (st.criticalHaccpPoint) {
+            <div class="kkt-badge">⚠️ ККТ ХАССП: {{ st.criticalHaccpPoint }}</div>
+          }
+          <button class="btn btn-sm btn-green" style="margin-top:8px;" (click)="erp.startTimer(st.durationMinutes, st.title)">
+            ▶ Запустить таймер шага ({{ st.durationMinutes }} мин)
+          </button>
+        </div>
+      }
+    </div>
+  </aside>
+}
