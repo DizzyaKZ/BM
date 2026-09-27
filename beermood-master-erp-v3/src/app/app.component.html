@@ -11,6 +11,10 @@
 </header>
 
 <nav class="nav-tabs">
+    <button type="button" class="ptab" style="background:#238636; color:#fff; font-weight:700; border:1px solid #7ee787; margin-right:8px; cursor:pointer;" (click)="showBrinePanel = !showBrinePanel">
+      🧪 7. Рассолы (Кох / Сыр) и Звуковой Таймер
+    </button>
+
   <button class="nav-tab" [class.active]="store.activeTab() === 'giant'" (click)="store.activeTab.set('giant')">
     1. 📅 30-дневный GIANT-план (24 линии + Анти-затоваривание)
   </button>
@@ -34,6 +38,11 @@
   </button>
 </nav>
 
+
+<!-- 7-Й КОНТУР: РАССОЛЫ МЯСА/СЫРА И ЗВУКОВОЙ ТАЙМЕР ТЕХПРОЦЕССА -->
+<div *ngIf="showBrinePanel" style="max-width:1440px; margin:16px auto; padding:0 20px;">
+  <app-tech-brine-panel></app-tech-brine-panel>
+</div>
 <main class="workspace">
   <!-- ПЕРЕИСПОЛЬЗУЕМАЯ ПАНЕЛЬ KPI В ВЕРХНЕЙ ЧАСТИ -->
   <div class="kpi-strip">

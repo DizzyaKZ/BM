@@ -1,3 +1,4 @@
+import { TechBrinePanelComponent } from './components/tech-brine-panel.component';
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,10 +12,11 @@ import { GiantLine, CustomerOrder } from './models/erp.models';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, KpiBadgeComponent, PackEconComponent, HaccpDrawerComponent, OrderIntakeComponent],
+  imports: [TechBrinePanelComponent, CommonModule, FormsModule, KpiBadgeComponent, PackEconComponent, HaccpDrawerComponent, OrderIntakeComponent],
   templateUrl: './app.component.html'
 })
 export class AppComponent {
+  showBrinePanel = true;
   store = inject(ErpStoreService);
   readonly days30 = Array.from({ length: 30 }, (_, i) => i + 1);
   readonly depts = [
