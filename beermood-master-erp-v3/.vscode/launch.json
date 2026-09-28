@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug MOOD GROUP PRO ERP (Chrome)",
+      "name": "Launch BEERMOOD Master ERP (Chrome)",
       "type": "chrome",
       "request": "launch",
       "preLaunchTask": "npm: start",

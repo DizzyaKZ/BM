@@ -1,11 +1,12 @@
 {
   "name": "beermood-master-erp-v3",
-  "version": "3.2.0",
+  "version": "3.0.0",
+  "description": "BEERMOOD Master ERP: Integrated Craft Food Manufacturing System (Angular 18 + PHP/MySQL)",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open",
-    "bridge": "node local-bridge.js",
-    "build:pskz": "ng build --configuration production"
+    "build": "ng build --configuration production",
+    "watch": "ng build --watch --configuration development"
   },
   "private": true,
   "dependencies": {
@@ -26,12 +27,5 @@
     "@angular/cli": "^18.2.0",
     "@angular/compiler-cli": "^18.2.0",
     "typescript": "~5.5.2"
-  },
-  "allowScripts": {
-    "esbuild@0.23.0": true,
-    "fsevents@2.3.3": true,
-    "lmdb@3.0.13": true,
-    "msgpackr-extract@3.0.4": true,
-    "nice-napi@1.0.2": true
   }
 }

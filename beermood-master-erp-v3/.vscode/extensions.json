@@ -1,8 +1,8 @@
 {
   "recommendations": [
     "Angular.ng-template",
-    "bmewburn.vscode-intelephense-client",
-    "mtxr.sqltools",
-    "mtxr.sqltools-driver-mysql"
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bmewburn.vscode-intelephense-client"
   ]
 }
